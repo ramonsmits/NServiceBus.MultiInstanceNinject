@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net471</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="Ninject" Version="3.2.2" />
+    <PackageReference Include="Ninject.Extensions.ChildKernel" Version="3.2.0" />
+    <PackageReference Include="NServiceBus" Version="6.4.3" />
+    <PackageReference Include="NServiceBus.Log4Net" Version="2.0.0" />
+    <PackageReference Include="NServiceBus.Ninject" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EndpointA\EndpointA.csproj" />
+    <ProjectReference Include="..\EndpointB\EndpointB.csproj" />
+    <ProjectReference Include="..\MyService\MyService.csproj" />
+  </ItemGroup>
+
+</Project>
