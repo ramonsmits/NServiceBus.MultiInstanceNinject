@@ -24,6 +24,7 @@ public class MySaga
     public async Task Handle(Response message, IMessageHandlerContext context)
     {
         Data.Ack = true;
+        NServiceBus.Logging.LogManager.GetLogger<MySaga>().Info("Ack response");
         //MarkAsComplete();
     }
 }
