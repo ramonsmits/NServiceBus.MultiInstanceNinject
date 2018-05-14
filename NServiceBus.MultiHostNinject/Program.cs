@@ -36,7 +36,9 @@ class Program
         using (NDC.Push(name))
         {
             var cfg = new EndpointConfiguration(name);
-            var transport = cfg.UseTransport<LearningTransport>();
+            var transport = cfg.UseTransport<MsmqTransport>();
+            cfg.SendFailedMessagesTo("error");
+
             var routing = transport.Routing();
             routing.RouteToEndpoint(typeof(StartSaga), "EndpointA");
             routing.RouteToEndpoint(typeof(Request), "EndpointB");
