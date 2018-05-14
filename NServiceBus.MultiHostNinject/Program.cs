@@ -54,12 +54,12 @@ class Program
             pipeline.Register(behavior: new AssignMessageIdtoLog4netNdcBehavior(name), description: "Assigns the incoming message id to the log4net NDC.");
 
             // == Ninject container per instance
-            var kernel = new StandardKernel();
-            kernel.Bind<IMyService>().ToConstant(new MyService());
-            cfg.UseContainer<NinjectBuilder>(customizations: customizations => { customizations.ExistingKernel(kernel); });
+            //var kernel = new StandardKernel();
+            //kernel.Bind<IMyService>().ToConstant(new MyService());
+            //cfg.UseContainer<NinjectBuilder>(customizations: customizations => { customizations.ExistingKernel(kernel); });
 
             // == Passed child container
-            //cfg.UseContainer<NinjectBuilder>(customizations: customizations => { customizations.ExistingKernel(childKernel); });
+            cfg.UseContainer<NinjectBuilder>(customizations: customizations => { customizations.ExistingKernel(childKernel); });
 
             // == Default DI container
             //cfg.RegisterComponents(x => x.ConfigureComponent<IMyService>(() => new MyService(), DependencyLifecycle.SingleInstance));
