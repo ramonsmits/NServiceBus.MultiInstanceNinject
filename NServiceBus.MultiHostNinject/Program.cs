@@ -38,8 +38,8 @@ class Program
         using (NDC.Push(name))
         {
             var cfg = new EndpointConfiguration(name);
-            var transport = cfg.UseTransport<MsmqTransport>();
-            cfg.SendFailedMessagesTo("error");
+            var transport = cfg.UseTransport<RabbitMQTransport>();
+            transport.ConnectionString("host=localhost");
 
             var routing = transport.Routing();
             routing.RouteToEndpoint(typeof(StartSaga), "EndpointA");
