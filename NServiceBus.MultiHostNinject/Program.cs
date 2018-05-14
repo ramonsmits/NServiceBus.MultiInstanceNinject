@@ -64,6 +64,7 @@ class Program
             // == Default DI container
             //cfg.RegisterComponents(x => x.ConfigureComponent<IMyService>(() => new MyService(), DependencyLifecycle.SingleInstance));
             cfg.EnableInstallers();
+            if (string.Equals("EndpointA", name, StringComparison.InvariantCulture)) cfg.EnableOutbox();
 
             return await Endpoint.Start(cfg);
         }
