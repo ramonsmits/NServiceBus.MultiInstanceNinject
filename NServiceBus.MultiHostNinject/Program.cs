@@ -21,10 +21,12 @@ class Program
 
         await Console.Out.WriteLineAsync("Press ESC to exit, any other key to send message");
 
+
+
         while (Console.ReadKey().Key != ConsoleKey.Escape)
         {
             await Console.Out.WriteLineAsync("Sending message!");
-            await e1.SendLocal(new StartSaga { TheCorrellationId = DateTime.UtcNow.ToString("s") });
+            await e1.SendLocal(new StartSaga { TheCorrellationId = Guid.NewGuid().ToString("N") });
         }
 
         await e1.Stop();
