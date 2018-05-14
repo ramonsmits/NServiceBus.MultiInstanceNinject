@@ -1,16 +1,19 @@
 ﻿using System.Threading.Tasks;
 using NServiceBus;
+using NServiceBus.Persistence.Sql;
 
 public class MySaga
-    : Saga<MySagaData>
+    : SqlSaga<MySagaData>
         , IAmStartedByMessages<StartSaga>
         , IHandleMessages<Response>
 
 {
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+    protected override string CorrelationPropertyName => nameof(MySagaData.TheCorrellationId);
+
+    protected override void ConfigureMapping(IMessagePropertyMapper mapper)
     {
-        mapper.ConfigureMapping<StartSaga>(m => m.TheCorrellationId).ToSaga(s => s.TheCorrellationId);
-        mapper.ConfigureMapping<Response>(m => m.TheCorrellationId).ToSaga(s => s.TheCorrellationId);
+        mapper.ConfigureMapping<StartSaga>(m => m.TheCorrellationId);
+        mapper.ConfigureMapping<Response>(m => m.TheCorrellationId);
     }
 
     public async Task Handle(StartSaga message, IMessageHandlerContext context)

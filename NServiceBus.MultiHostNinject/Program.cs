@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using log4net;
 using Ninject;
 using Ninject.Extensions.ChildKernel;
 using NServiceBus;
+using NServiceBus.Persistence.Sql;
 
 class Program
 {
@@ -39,7 +41,11 @@ class Program
             routing.RouteToEndpoint(typeof(StartSaga), "EndpointA");
             routing.RouteToEndpoint(typeof(Request), "EndpointB");
 
-            cfg.UsePersistence<LearningPersistence>();
+            //cfg.UsePersistence<LearningPersistence>();
+            var persistence = cfg.UsePersistence<SqlPersistence>();
+            persistence.SubscriptionSettings().DisableCache();
+            persistence.SqlDialect<SqlDialect.MsSqlServer>();
+            persistence.ConnectionBuilder(() => new SqlConnection("server=.;Integrated Security=True;database=MultiHostNinject;App=MultiHostNinject"));
 
             var scanner = cfg.AssemblyScanner();
             scanner.ExcludeAssemblies(asmExclusions);
