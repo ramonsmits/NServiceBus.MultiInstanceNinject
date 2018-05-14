@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NServiceBus;
 
 public class TaskHandler : IHandleMessages<DoTask>
@@ -12,6 +13,8 @@ public class TaskHandler : IHandleMessages<DoTask>
     public async Task Handle(DoTask message, IMessageHandlerContext context)
     {
         await service.ExpandTheGalaxy();
-        await context.Send(new Request() { TheCorrellationId = message.TheCorrellationId });
+        var o = new SendOptions();
+        o.DelayDeliveryWith(TimeSpan.FromSeconds(10));
+        await context.Send(new Request { TheCorrellationId = message.TheCorrellationId }, o);
     }
 }

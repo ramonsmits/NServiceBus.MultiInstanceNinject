@@ -20,6 +20,7 @@ public class MySaga
 
     public async Task Handle(Response message, IMessageHandlerContext context)
     {
-        MarkAsComplete();
+        Data.Ack = true;
+        //MarkAsComplete();
     }
 }
