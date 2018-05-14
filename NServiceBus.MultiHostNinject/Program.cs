@@ -14,7 +14,7 @@ class Program
         LoggingHelper.InitLogging();
 
         var parentKernel = new StandardKernel();
-        parentKernel.Bind<IMyService>().To<MyService>();
+        parentKernel.Bind<IMyService>().To<MyService>().InSingletonScope();
 
         var e1 = await Create("EndpointA", new[] { "EndpointB" }, new ChildKernel(parentKernel));
         var e2 = await Create("EndpointB", new[] { "EndpointA" }, new ChildKernel(parentKernel));
