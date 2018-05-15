@@ -1,36 +1,56 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using Ninject;
 using Ninject.Extensions.ChildKernel;
 using NServiceBus;
 using NServiceBus.Persistence.Sql;
+using Topshelf;
 
-class Program
+class EndpointsControl : ServiceControl
 {
-    static async Task Main()
-    {
-        LoggingHelper.InitLogging();
+    ICollection<IEndpointInstance> instances;
+    IKernel parentKernel;
 
-        var parentKernel = new StandardKernel();
+    public async Task Start()
+    {
+        parentKernel = new StandardKernel();
         parentKernel.Bind<IMyService>().To<MyService>().InSingletonScope();
 
-        var e1 = await Create("EndpointA", new[] { "EndpointB" }, new ChildKernel(parentKernel));
-        var e2 = await Create("EndpointB", new[] { "EndpointA" }, new ChildKernel(parentKernel));
-
-        await Console.Out.WriteLineAsync("Press ESC to exit, any other key to send message");
-
-
-
-        while (Console.ReadKey().Key != ConsoleKey.Escape)
+        var tasks = new List<Task<IEndpointInstance>>
         {
-            await Console.Out.WriteLineAsync("Sending message!");
-            await e1.SendLocal(new StartSaga { TheCorrellationId = Guid.NewGuid().ToString("N") });
-        }
+            Create("EndpointA", new[] {"EndpointB"}, new ChildKernel(parentKernel)),
+            Create("EndpointB", new[] {"EndpointA"}, new ChildKernel(parentKernel))
+        };
 
-        await e1.Stop();
-        await e2.Stop();
+        instances = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        ConsoleLoop(instances.First());
+    }
+
+    async void ConsoleLoop(IEndpointInstance instance)
+    {
+        while (true)
+        {
+            if (Environment.UserInteractive)
+                Console.ReadKey();
+            else
+                await Task.Delay(5000).ConfigureAwait(false);
+            await instance.Send(new StartSaga {TheCorrellationId = Guid.NewGuid().ToString("N")}).ConfigureAwait(false);
+        }
+    }
+
+    public async Task Stop()
+    {
+        var tasks = new List<Task>();
+        foreach (var i in instances) tasks.Add(i.Stop());
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        parentKernel.Dispose();
     }
 
     static async Task<IEndpointInstance> Create(string name, string[] asmExclusions, IKernel childKernel)
@@ -73,4 +93,39 @@ class Program
             return await Endpoint.Start(cfg);
         }
     }
+
+    public bool Start(HostControl hostControl)
+    {
+        Start().GetAwaiter().GetResult();
+        return true;
+    }
+
+    public bool Stop(HostControl hostControl)
+    {
+        Stop().GetAwaiter().GetResult();
+        return true;
+    }
 }
+class Program
+{
+    static int Main()
+    {
+        LoggingHelper.InitLogging();
+        try
+        {
+            return (int)HostFactory.Run(x =>
+            {
+                x.UseLog4Net();
+                x.Service<EndpointsControl>();
+                x.SetServiceName("MultiHostNinject");
+                x.OnException(ex => LogManager.GetLogger("Host").Fatal("OnException", ex));
+            });
+        }
+        finally
+        {
+            log4net.LogManager.Shutdown();
+        }
+    }
+}
+
+
