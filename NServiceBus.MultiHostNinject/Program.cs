@@ -1,5 +1,6 @@
 ﻿using log4net;
 using Topshelf;
+using Topshelf.Ninject;
 
 class Program
 {
@@ -11,7 +12,13 @@ class Program
             return (int)HostFactory.Run(x =>
             {
                 x.UseLog4Net();
-                x.Service<EndpointsControl>();
+                x.UseNinject(new HostModule());
+                x.Service<EndpointsControl>(s =>
+                {
+                    s.ConstructUsingNinject();
+                    s.WhenStarted((i, hostControl) => i.Start(hostControl));
+                    s.WhenStopped((i, hostControl) => i.Stop(hostControl));
+                });
                 x.SetServiceName("MultiHostNinject");
                 x.OnException(ex => LogManager.GetLogger("Host").Fatal("OnException", ex));
             });

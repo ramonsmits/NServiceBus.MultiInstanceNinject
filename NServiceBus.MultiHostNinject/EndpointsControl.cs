@@ -12,14 +12,16 @@ using Topshelf;
 
 class EndpointsControl : ServiceControl
 {
+    readonly IKernel parentKernel;
     ICollection<IEndpointInstance> instances;
-    IKernel parentKernel;
 
-    public async Task Start()
+    public EndpointsControl(IKernel parentKernel)
     {
-        parentKernel = new StandardKernel();
-        parentKernel.Bind<IMyService>().To<MyService>().InSingletonScope();
+        this.parentKernel = parentKernel;
+    }
 
+    async Task Start()
+    {
         var tasks = new List<Task<IEndpointInstance>>
         {
             Create("EndpointA", new[] {"EndpointB"}, new ChildKernel(parentKernel)),
@@ -43,7 +45,7 @@ class EndpointsControl : ServiceControl
         }
     }
 
-    public async Task Stop()
+    async Task Stop()
     {
         var tasks = new List<Task>();
         foreach (var i in instances) tasks.Add(i.Stop());

@@ -25,6 +25,7 @@
     <PackageReference Include="NServiceBus.RabbitMQ" Version="4.4.1" />
     <PackageReference Include="Topshelf" Version="4.0.4" />
     <PackageReference Include="Topshelf.Log4Net" Version="4.0.4" />
+    <PackageReference Include="Topshelf.Ninject" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>
