@@ -11,9 +11,9 @@ class EndpointsControl : ServiceControl
     ICollection<IEndpointInstance> instances;
     readonly IStartableEndpoint[] endpoints;
 
-    public EndpointsControl(IStartableEndpoint[] endpoints)
+    public EndpointsControl(Task<IStartableEndpoint>[] endpoints)
     {
-        this.endpoints = endpoints;
+        this.endpoints =  Task.WhenAll(endpoints).GetAwaiter().GetResult();
     }
 
     async Task Start()

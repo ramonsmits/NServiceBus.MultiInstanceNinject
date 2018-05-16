@@ -13,8 +13,8 @@ class HostModule : NinjectModule
     public override void Load()
     {
         Bind<IMyService>().To<MyService>().InSingletonScope();
-        Bind<IStartableEndpoint>().ToMethod(x => Create("EndpointA", new[] { "EndpointB" }, new ChildKernel(x.Kernel)).GetAwaiter().GetResult());
-        Bind<IStartableEndpoint>().ToMethod(x => Create("EndpointB", new[] { "EndpointA" }, new ChildKernel(x.Kernel)).GetAwaiter().GetResult());
+        Bind<Task<IStartableEndpoint>>().ToMethod(x => Create("EndpointA", new[] { "EndpointB" }, new ChildKernel(x.Kernel)));
+        Bind<Task<IStartableEndpoint>>().ToMethod(x => Create("EndpointB", new[] { "EndpointA" }, new ChildKernel(x.Kernel)));
     }
 
     static async Task<IStartableEndpoint> Create(string name, string[] asmExclusions, IKernel childKernel)
