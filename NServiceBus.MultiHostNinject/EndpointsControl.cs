@@ -54,7 +54,7 @@ class EndpointsControl : ServiceControl
 
     static async Task<IEndpointInstance> Create(string name, string[] asmExclusions, IKernel childKernel)
     {
-        using (NDC.Push(name))
+        using (LogicalThreadContext.Stacks["NDC"].Push(name))
         {
             var cfg = new EndpointConfiguration(name);
             var transport = cfg.UseTransport<RabbitMQTransport>();
@@ -74,7 +74,7 @@ class EndpointsControl : ServiceControl
             scanner.ExcludeAssemblies(asmExclusions);
 
             var pipeline = cfg.Pipeline;
-            pipeline.Register(behavior: new AssignMessageIdtoLog4netNdcBehavior(name), description: "Assigns the incoming message id to the log4net NDC.");
+            pipeline.Register(behavior: new AssignMessageIdtoLog4netNdcBehavior(), description: "Assigns the incoming message id to the log4net NDC.");
 
             // == Passed child container
             cfg.UseContainer<NinjectBuilder>(customizations: customizations => { customizations.ExistingKernel(childKernel); });
@@ -82,7 +82,7 @@ class EndpointsControl : ServiceControl
             cfg.EnableInstallers();
             if (string.Equals("EndpointA", name, StringComparison.InvariantCulture)) cfg.EnableOutbox();
 
-            return await Endpoint.Start(cfg);
+            return await Endpoint.Start(cfg).ConfigureAwait(false);
         }
     }
 
